@@ -246,9 +246,9 @@ fn main_menu(sqlite_conn: &Connection) {
         println!("|  - {} {:<9} |  - {} {:<10} |", text_to_bold("Em uso:"), cpu_usage, text_to_bold("Em uso:"), ram_usage);
         println!("------------------------------------------------");
         let options = vec![
-            "Gerenciar Usuarios",
-            "Gerenciar Conexões",
-            "Ferramentas",
+            "Kelola Pengguna",
+            "Kelola Koneksi",
+            "Alat",
         ];
 
         for (i, option) in options.iter().enumerate() {
@@ -289,7 +289,7 @@ fn users_menu(sqlite_conn: &Connection) {
         Command::new("clear").status().unwrap();
         
         println!("------------------------------------------------");
-        println!("|              {}              |", text_to_bold("Gerenciar Usuarios"));
+        println!("|              {}              |", text_to_bold("Kelola Pengguna"));
         println!("------------------------------------------------");
         let options = vec![
             "Buat pengguna",

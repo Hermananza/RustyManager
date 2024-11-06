@@ -383,12 +383,12 @@ fn users_menu(sqlite_conn: &Connection) {
                         let create = create_user(&*user, &*pass, days.parse().unwrap(), limit.parse().unwrap(), true, &sqlite_conn);
                         match create.as_str() {
                             "created" => {
-                                let mut text = ">>> Usuario criado com sucesso".to_owned();
-                                text = text + "\n - Usuario: " + &*user;
-                                text = text + "\n - Senha: " + &*pass;
-                                text = text + "\n - Dias para expirar: " + &*days;
-                                text = text + "\n - Limite de conexões: " + &*limit;
-                                text = text + "\n\n> Pressione qualquer tecla para voltar ao menu";
+                                let mut text = ">>> Pengguna berhasil dibuat".to_owned();
+                                text = text + "\n - Username: " + &*user;
+                                text = text + "\n - Password: " + &*pass;
+                                text = text + "\n - Expired: " + &*days;
+                                text = text + "\n - Limite koneksi: " + &*limit;
+                                text = text + "\n\n> Tekan tombol apa saja untuk kembali ke menu";
                                 println!("{}", text);
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");

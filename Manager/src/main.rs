@@ -292,16 +292,16 @@ fn users_menu(sqlite_conn: &Connection) {
         println!("|              {}              |", text_to_bold("Gerenciar Usuarios"));
         println!("------------------------------------------------");
         let options = vec![
-            "Criar usuario",
-            "Remover usuario",
-            "Gerar teste",
-            "Alterar limite",
-            "Alterar validade",
-            "Alterar senha",
-            "Relatorio de usuarios",
-            "Relatorio de expirados",
-            "Relatorio de conectados",
-            "Remover expirados"
+            "Buat pengguna",
+            "Hapus pengguna",
+            "Hasilkan tes",
+            "Ubah limite",
+            "Ubah validitas",
+            "Ganti kata sandi",
+            "Laporan Pengguna",
+            "Laporan kedaluwarsa",
+            "Laporan Terhubung",
+            "Hapus kadaluwarsa"
         ];
 
         for (i, option) in options.iter().enumerate() {

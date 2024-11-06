@@ -110,7 +110,7 @@ else
     # ---->>>> Instalar o RustyManager
     show_progress "Compilando RustyManager, isso pode levar bastante tempo dependendo da maquina..."
     mkdir -p /opt/rustymanager
-    git clone --branch "$SCRIPT_VERSION" --recurse-submodules --single-branch https://github.com/UlekBR/RustyManager.git /root/RustyManager > /dev/null 2>&1 || error_exit "Falha ao clonar RustyManager"
+    git clone --branch "$SCRIPT_VERSION" --recurse-submodules --single-branch https://github.com/Hermananza/RustyManager.git /root/RustyManager > /dev/null 2>&1 || error_exit "Falha ao clonar RustyManager"
 
     cd /root/RustyManager/
     cargo build --release --jobs $(nproc) > /dev/null 2>&1 || error_exit "Falha ao compilar RustyManager"

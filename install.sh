@@ -131,6 +131,10 @@ else
     fi
     increment_step
 
+    #domain
+    read -rp "Masukkan Domain: " domain
+    echo "$domain" > /etc/data/domain
+    domain=$(cat /etc/data/domain)
     # ---->>>> Instalar o RustyManager
     show_progress "Compilando RustyManager, isso pode levar bastante tempo dependendo da maquina..."
     mkdir -p /opt/rustymanager

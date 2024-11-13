@@ -292,5 +292,5 @@ duplicate-cn" > /etc/openvpn/server.conf || error_exit "Falha ao criar openvpn s
     increment_step
 
     # ---->>>> Instalação finalizada :)
-    echo "Instalação concluída com sucesso. digite 'menu' para acessar o menu."
+    echo "Instalação concluída com sucesso. digite 'masuk' para acessar o menu."
 fi

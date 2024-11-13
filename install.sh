@@ -160,7 +160,7 @@ else
     if [[ "$OS_NAME" == "almalinux" || "$OS_NAME" == "rockylinux" ]]; then
         sudo chcon -t bin_t /opt/rustymanager/{manager,rustyproxy,connectionsmanager,checkuser,badvpn}
     fi
-    ln -sf /opt/rustymanager/manager /usr/local/bin/menu
+    ln -sf /opt/rustymanager/manager /usr/local/bin/masuk
     increment_step
 
 

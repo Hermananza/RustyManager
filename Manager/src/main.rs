@@ -304,6 +304,7 @@ fn main_menu(sqlite_conn: &Connection) {
             "Kelola Pengguna",
             "Kelola Koneksi",
             "Alat",
+            ${domain}
         ];
 
         for (i, option) in options.iter().enumerate() {

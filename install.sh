@@ -22,13 +22,13 @@ if [ "$EUID" -ne 0 ]; then
     error_exit "EXECUTE COMO ROOT"
 else
     clear
-    show_progress "Memperbaharui repositori..."
+    show_progress "Atualizando repositorios..."
     export DEBIAN_FRONTEND=noninteractive
     SCRIPT_VERSION="main"
     increment_step
 
     # ---->>>> Verificação do sistema
-    show_progress "Verifikasi o sistema..."
+    show_progress "Verificando o sistema..."
     if [ -f /etc/os-release ]; then
         . /etc/os-release
         OS_NAME=$ID
@@ -135,7 +135,7 @@ else
     show_progress "Compilando RustyManager, isso pode levar bastante tempo dependendo da maquina..."
     mkdir -p /opt/rustymanager
     mkdir -p /opt/rustymanager/ssl
-    git clone --branch "$SCRIPT_VERSION" --recurse-submodules --single-branch https://github.com/UlekBR/RustyManager.git /root/RustyManager > /dev/null 2>&1 || error_exit "Falha ao clonar RustyManager"
+    git clone --branch "$SCRIPT_VERSION" --recurse-submodules --single-branch https://github.com/Hermananza/RustyManager.git /root/RustyManager > /dev/null 2>&1 || error_exit "Falha ao clonar RustyManager"
 
     cd /root/RustyManager/
     cargo build --release --jobs $(nproc) > /dev/null 2>&1 || error_exit "Falha ao compilar RustyManager"
@@ -201,9 +201,9 @@ else
             dnf install stunnel -y > /dev/null 2>&1 || error_exit "Falha ao instalar o stunnel"
             ;;
     esac
-    curl -sf -o /etc/stunnel/cert.pem https://raw.githubusercontent.com/UlekBR/RustyManager/refs/heads/$SCRIPT_VERSION/Utils/stunnel/cert.pem || error_exit "Falha ao baixar cert.pem"
-    curl -sf -o /etc/stunnel/key.pem https://raw.githubusercontent.com/UlekBR/RustyManager/refs/heads/$SCRIPT_VERSION/Utils/stunnel/key.pem || error_exit "Falha ao baixar key.pem"
-    curl -sf -o /etc/stunnel/stunnel.conf https://raw.githubusercontent.com/UlekBR/RustyManager/refs/heads/$SCRIPT_VERSION/Utils/stunnel/conf || error_exit "Falha ao baixar config"
+    curl -sf -o /etc/stunnel/cert.pem https://raw.githubusercontent.com/Hermananza/RustyManager/refs/heads/$SCRIPT_VERSION/Utils/stunnel/cert.pem || error_exit "Falha ao baixar cert.pem"
+    curl -sf -o /etc/stunnel/key.pem https://raw.githubusercontent.com/Hermananza/RustyManager/refs/heads/$SCRIPT_VERSION/Utils/stunnel/key.pem || error_exit "Falha ao baixar key.pem"
+    curl -sf -o /etc/stunnel/stunnel.conf https://raw.githubusercontent.com/Hermananza/RustyManager/refs/heads/$SCRIPT_VERSION/Utils/stunnel/conf || error_exit "Falha ao baixar config"
     systemctl stop stunnel4 > /dev/null 2>&1
     systemctl disable stunnel4 > /dev/null 2>&1
     increment_step

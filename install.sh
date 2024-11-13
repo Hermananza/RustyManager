@@ -22,13 +22,13 @@ if [ "$EUID" -ne 0 ]; then
     error_exit "EXECUTE COMO ROOT"
 else
     clear
-    show_progress "Atualizando repositorios..."
+    show_progress "Memperbaharui repositori..."
     export DEBIAN_FRONTEND=noninteractive
     SCRIPT_VERSION="main"
     increment_step
 
     # ---->>>> Verificação do sistema
-    show_progress "Verificando o sistema..."
+    show_progress "Mariksa sistem..."
     if [ -f /etc/os-release ]; then
         . /etc/os-release
         OS_NAME=$ID
@@ -77,7 +77,7 @@ else
     increment_step
 
     # ---->>>> Instalação de pacotes requisitos e atualização do sistema
-    show_progress "Atualizando o sistema..."
+    show_progress "Memperbaharui sistem..."
     case $OS_NAME in
         ubuntu|debian)
             apt-get upgrade -y > /dev/null 2>&1 || error_exit "Falha ao atualizar o sistema"
@@ -91,13 +91,13 @@ else
     increment_step
 
     # ---->>>> Criando o diretorio do script
-    show_progress "Criando diretorio /opt/rustymanager..."
+    show_progress "Nyieun diretori /opt/rustymanager..."
     mkdir /opt/ > /dev/null 2>&1
     mkdir /opt/rustymanager > /dev/null 2>&1
     increment_step
 
     # ---->>>> Criando as colunas no banco de dados
-    show_progress "Configurando o banco de dados..."
+    show_progress "Configurasi data base..."
     sqlite3 /opt/rustymanager/db "
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,

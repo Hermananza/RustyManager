@@ -22,13 +22,13 @@ if [ "$EUID" -ne 0 ]; then
     error_exit "EXECUTE COMO ROOT"
 else
     clear
-    show_progress "Atualizando repositorios..."
+    show_progress "Memperbaharui repositori..."
     export DEBIAN_FRONTEND=noninteractive
     SCRIPT_VERSION="main"
     increment_step
 
     # ---->>>> Verificação do sistema
-    show_progress "Verificando o sistema..."
+    show_progress "Verifikasi o sistema..."
     if [ -f /etc/os-release ]; then
         . /etc/os-release
         OS_NAME=$ID

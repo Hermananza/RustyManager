@@ -28,7 +28,7 @@ else
     increment_step
 
     # ---->>>> Verificação do sistema
-    show_progress "Mariksa sistem..."
+    show_progress "Memeriksa sistem..."
     if [ -f /etc/os-release ]; then
         . /etc/os-release
         OS_NAME=$ID
@@ -91,7 +91,7 @@ else
     increment_step
 
     # ---->>>> Criando o diretorio do script
-    show_progress "Nyieun diretori /opt/rustymanager..."
+    show_progress "Membuat diretori /opt/rustymanager..."
     mkdir /opt/ > /dev/null 2>&1
     mkdir /opt/rustymanager > /dev/null 2>&1
     increment_step
@@ -124,21 +124,21 @@ else
     increment_step
 
     # ---->>>> Instalar rust
-    show_progress "Instalando Rust..."
+    show_progress "Memasang Rust..."
     if ! command -v rustc &> /dev/null; then
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y > /dev/null 2>&1 || error_exit "Falha ao instalar Rust"
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y > /dev/null 2>&1 || error_exit "Gagal menginstal Rust"
         . "$HOME/.cargo/env"
     fi
     increment_step
 
     # ---->>>> Instalar o RustyManager
-    show_progress "Compilando RustyManager, isso pode levar bastante tempo dependendo da maquina..."
+    show_progress "Mengkompilasi RustyManager, ini mungkin memerlukan waktu yang lama tergantung pada mesinnya..."
     mkdir -p /opt/rustymanager
     mkdir -p /opt/rustymanager/ssl
     git clone --branch "$SCRIPT_VERSION" --recurse-submodules --single-branch https://github.com/Hermananza/RustyManager.git /root/RustyManager > /dev/null 2>&1 || error_exit "Falha ao clonar RustyManager"
 
     cd /root/RustyManager/
-    cargo build --release --jobs $(nproc) > /dev/null 2>&1 || error_exit "Falha ao compilar RustyManager"
+    cargo build --release --jobs $(nproc) > /dev/null 2>&1 || error_exit "Gagal mengkompilasi RustyManager"
     mv -f ./target/release/SshScript /opt/rustymanager/manager
     mv -f ./target/release/CheckUser /opt/rustymanager/checkuser
     mv -f ./target/release/RustyProxy /opt/rustymanager/rustyproxy
@@ -146,7 +146,7 @@ else
     increment_step
 
     # ---->>>> Compilar BadVPN
-    show_progress "Compilando BadVPN..."
+    show_progress "Mengkompilasi BadVPN..."
     mkdir -p /root/RustyManager/BadVpn/badvpn/badvpn-build
     cd /root/RustyManager/BadVpn/badvpn/badvpn-build
     cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1 > /dev/null 2>&1 || error_exit "Falha ao configurar cmake para BadVPN"
@@ -155,7 +155,7 @@ else
     increment_step
 
     # ---->>>> Configuração de permissões
-    show_progress "Configurando permissões..."
+    show_progress "Konfigurasi izin..."
     chmod +x /opt/rustymanager/{manager,rustyproxy,connectionsmanager,checkuser,badvpn}
     if [[ "$OS_NAME" == "almalinux" || "$OS_NAME" == "rockylinux" ]]; then
         sudo chcon -t bin_t /opt/rustymanager/{manager,rustyproxy,connectionsmanager,checkuser,badvpn}
@@ -165,7 +165,7 @@ else
 
 
     # ---->>>> Instalar speedtest
-    show_progress "Instalando Speedtest..."
+    show_progress "Menginstal Speedtest..."
 
     case $OS_NAME in
         ubuntu|debian)
@@ -180,7 +180,7 @@ else
     increment_step
     
     # ---->>>> Instalar Htop
-    show_progress "Instalando monitor de recursos..."
+    show_progress "Memasang monitor sumberdaya..."
     case $OS_NAME in
         ubuntu|debian)
             apt-get install htop -y > /dev/null 2>&1 || error_exit "Falha ao instalar o htop"
@@ -192,7 +192,7 @@ else
     increment_step
 
     # ---->>>> Instalando STunnel
-    show_progress "Instalando STunnel..."
+    show_progress "Menginstal STunnel..."
     case $OS_NAME in
         ubuntu|debian)
             apt-get install stunnel4 -y > /dev/null 2>&1 || error_exit "Falha ao instalar o stunnel"
@@ -209,7 +209,7 @@ else
     increment_step
 
     # ---->>>> Instalando OpenVPN
-    show_progress "Instalando OpenVPN..."
+    show_progress "Menginstal OpenVPN..."
     case $OS_NAME in
         ubuntu|debian)
             apt-get install -y openvpn openssl -y > /dev/null 2>&1 || error_exit "Falha ao instalar o openvpn"
@@ -286,11 +286,11 @@ duplicate-cn" > /etc/openvpn/server.conf || error_exit "Falha ao criar openvpn s
 
 
     # ---->>>> Limpeza
-    show_progress "Limpando diretórios temporários..."
+    show_progress "Membersihkan direktori sementara..."
     cd /root/
     rm -rf /root/RustyManager/
     increment_step
 
     # ---->>>> Instalação finalizada :)
-    echo "Instalação concluída com sucesso. digite 'masuk' para acessar o menu."
+    echo "Instalsi berhasil diselesaikan. ketim 'menu' untuk mengakses menu."
 fi

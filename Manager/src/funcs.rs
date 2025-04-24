@@ -69,7 +69,7 @@ pub fn generate_test(time: usize, conn: &Connection) -> String {
     let pass = format!("test{}", n);
 
     let commands = [
-        format!("/usr/sbin/useradd -M -N -s /bin/false {} -e $(date -d \"+{} minutes\" +%Y-%m-%dT%H:%M:%S)", user, time),
+        format!("/usr/sbin/useradd -M -N -s /bin/false {}", user),
         format!("(echo {}; echo {}) | passwd {}", pass, pass, user),
         format!("echo \"/opt/rustymanager/manager --remove-user {}\" | at \"now + {} minute\"", user, time),
     ];

@@ -13,7 +13,7 @@ use rustls::crypto::CryptoProvider;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    CryptoProvider::install_default().expect("failed to install crypto provider");
+    rustls::crypto::ring::default_provider().install_default().expect("Failed to install rustls crypto provider");
     let addr = format!("[::]:{}", get_port());
 
     let cert = load_certs(PathBuf::from(get_cert()).as_path())?;

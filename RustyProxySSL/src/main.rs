@@ -8,11 +8,12 @@ use rustls::pki_types::{CertificateDer, PrivateKeyDer};
 use rustls_pemfile::{certs, private_key};
 use tokio::net::{TcpListener, TcpStream};
 use tokio_rustls::{rustls, TlsAcceptor, server::TlsStream};
-
+use rustls::crypto::CryptoProvider;
 
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    CryptoProvider::install_default().expect("failed to install crypto provider");
     let addr = format!("[::]:{}", get_port());
 
     let cert = load_certs(PathBuf::from(get_cert()).as_path())?;

@@ -9,7 +9,7 @@ use std::time::Duration;
 use chrono::DateTime;
 use rusqlite::Connection;
 use crate::text_funcs::{text_to_bold};
-use crate::funcs::{create_user, change_limit, change_pass, change_validity, expired_report_json, expired_report_vec, generate_test, is_port_avaliable, remove_user, user_already_exists, users_report_json, users_report_vec, run_command_and_get_output, get_connections, enable_badvpn_port, disable_badvpn_port, enable_proxy_port, disable_proxy_port, online_report_json, online_report, userdata, speedtest_data, enable_checkuser_port, disable_checkuser_port, journald_status, disable_journald, enable_journald, get_services, enable_openvpn, disable_openvpn, restore_backup, make_backup, enable_sslproxy_port, disable_sslproxy_port};
+use crate::funcs::{create_user, change_limit, change_pass, change_validity, expired_report_json, expired_report_vec, generate_test, is_port_avaliable, remove_user, user_already_exists, users_report_json, users_report_vec, run_command_and_get_output, get_connections, enable_badvpn_port, disable_badvpn_port, enable_proxy_port, disable_proxy_port, enable_stunnel_port, disable_stunnel_port, online_report_json, online_report, userdata, speedtest_data, enable_checkuser_port, disable_checkuser_port, journald_status, disable_journald, enable_journald, get_services, enable_openvpn, disable_openvpn, restore_backup, make_backup};
 
 fn main() {
     let sqlite_conn = Connection::open("/opt/rustymanager/db").unwrap();
@@ -245,13 +245,13 @@ fn main() {
 }
 
 fn user_dont_exists() {
-    println!("esse não existe\n\n> Pressione qualquer tecla para voltar ao menu");
+    println!("esse não existe\n\n> Tekan Sembarang Buat Kembali Ke Menu");
     let mut return_string = String::new();
     io::stdin().read_line(&mut return_string).expect("");
 }
 
 fn user_exists() {
-    println!("esse usuario já existe\n\n> Pressione qualquer tecla para voltar ao menu");
+    println!("esse usuario já existe\n\n> Tekan Sembarang Buat Kembali Ke Menu");
     let mut return_string = String::new();
     io::stdin().read_line(&mut return_string).expect("");
 }
@@ -301,17 +301,17 @@ fn main_menu(sqlite_conn: &Connection) {
         println!("|  - {} {:<9} |  - {} {:<10} |", text_to_bold("Em uso:"), cpu_usage, text_to_bold("Em uso:"), ram_usage);
         println!("------------------------------------------------");
         let options = vec![
-            "Gerenciar Usuarios",
-            "Gerenciar Conexões",
-            "Ferramentas",
+            "Kelola Pengguna",
+            "Kelola Koneksi",
+            "Alat",
         ];
 
         for (i, option) in options.iter().enumerate() {
             println!("| {:02} - {:<39} |", i + 1, option);
         }
-        println!("| 00 - {:<39} |", "Sair");
+        println!("| 00 - {:<39} |", "Keluar");
         println!("------------------------------------------------");
-        println!("\n --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
 
         let mut option = String::new();
         io::stdin().read_line(&mut option).unwrap();
@@ -334,7 +334,7 @@ fn main_menu(sqlite_conn: &Connection) {
             }
             Err(err) => {
                 println!("{}", err);
-                println!("Selecione uma opção valida")
+                println!("Pilih Salah Satu Opsi")
             }
         }
     }
@@ -347,24 +347,24 @@ fn users_menu(sqlite_conn: &Connection) {
         println!("|              {}              |", text_to_bold("Gerenciar Usuarios"));
         println!("------------------------------------------------");
         let options = vec![
-            "Criar usuario",
-            "Remover usuario",
-            "Gerar teste",
-            "Alterar limite",
-            "Alterar validade",
-            "Alterar senha",
-            "Relatorio de usuarios",
-            "Relatorio de expirados",
-            "Relatorio de conectados",
-            "Remover expirados"
+            "Buat Akun",
+            "Hapus Akun",
+            "Buat Trial",
+            "Ubah limit",
+            "Ubah Validitas",
+            "Ubah Password",
+            "Laporan Pengguna",
+            "Laporan Exp",
+            "Laporan User Online",
+            "Hapus Exp"
         ];
 
         for (i, option) in options.iter().enumerate() {
             println!("| {:02} - {:<39} |", i + 1, option);
         }
-        println!("| 00 - {:<39} |", "Sair");
+        println!("| 00 - {:<39} |", "Keluar");
         println!("------------------------------------------------");
-        println!("\n --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
 
         let mut option = String::new();
         io::stdin().read_line(&mut option).unwrap();
@@ -376,8 +376,8 @@ fn users_menu(sqlite_conn: &Connection) {
                     0 => { break }
                     1 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: criar usuario");
-                        println!("Digite o usuario: ");
+                        println!("--> Fungsi Yang Dipilih: criar usuario");
+                        println!("Masukan Username: ");
                         let mut user = String::new();
                         io::stdin().read_line(&mut user).unwrap();
                         user = user.trim().to_string();
@@ -390,7 +390,7 @@ fn users_menu(sqlite_conn: &Connection) {
                             continue
                         }
 
-                        println!("Digite a senha: ");
+                        println!("Masukan Password: ");
                         let mut pass = String::new();
                         io::stdin().read_line(&mut pass).unwrap();
                         pass = pass.trim().to_string();
@@ -400,7 +400,7 @@ fn users_menu(sqlite_conn: &Connection) {
 
                         let mut days = String::new();
                         loop {
-                            println!("Digite a expiração em dias: ");
+                            println!("Masukan Masa Aktif: ");
                             if !days.is_empty() {
                                 days = String::new()
                             }
@@ -411,14 +411,14 @@ fn users_menu(sqlite_conn: &Connection) {
                                     break
                                 }
                                 Err(..) => {
-                                    println!("digite um numero valido");
+                                    println!("Masukan Nomor Yang Benar");
                                 }
                             }
                         }
 
                         let mut limit = String::new();
                         loop {
-                            println!("Digite o limite de conexões: ");
+                            println!("Masukan Limit: ");
                             if !limit.is_empty() {
                                 limit = String::new()
                             }
@@ -429,7 +429,7 @@ fn users_menu(sqlite_conn: &Connection) {
                                     break
                                 }
                                 Err(..) => {
-                                    println!("digite um numero valido");
+                                    println!("Masukan Nomor Yang Benar");
                                 }
                             }
                         }
@@ -438,19 +438,19 @@ fn users_menu(sqlite_conn: &Connection) {
                         let create = create_user(&*user, &*pass, days.parse().unwrap(), limit.parse().unwrap(), true, &sqlite_conn);
                         match create.as_str() {
                             "created" => {
-                                let mut text = ">>> Usuario criado com sucesso".to_owned();
-                                text = text + "\n - Usuario: " + &*user;
-                                text = text + "\n - Senha: " + &*pass;
-                                text = text + "\n - Dias para expirar: " + &*days;
-                                text = text + "\n - Limite de conexões: " + &*limit;
-                                text = text + "\n\n> Pressione qualquer tecla para voltar ao menu";
+                                let mut text = ">>> Akun Berhasil Dibuat".to_owned();
+                                text = text + "\n - Username: " + &*user;
+                                text = text + "\n - Pass: " + &*pass;
+                                text = text + "\n - Masa Aktif: " + &*days;
+                                text = text + "\n - Limit: " + &*limit;
+                                text = text + "\n\n> Tekan Sembarang Buat Kembali Ke Menu";
                                 println!("{}", text);
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
 
-                            "error on insert user in db" => {
-                                println!("o usuario foi criado, mas ocorreu um erro para salvar ele na db\n\n> Pressione qualquer tecla para voltar ao menu");
+                            "Kesalahan Saat Memasukan Pengguna" => {
+                                println!("Pengguna Berhasil Dibuat, Tetapi terjadi kesalahan saat memasukan ke data base\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
@@ -459,8 +459,8 @@ fn users_menu(sqlite_conn: &Connection) {
                     }
                     2 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: remover usuario");
-                        println!("Digite o usuario: ");
+                        println!("--> fungsi yang dipilih: hapus username");
+                        println!("Masukan Username: ");
                         let mut user = String::new();
                         io::stdin().read_line(&mut user).unwrap();
                         user = user.trim().to_string();
@@ -476,12 +476,12 @@ fn users_menu(sqlite_conn: &Connection) {
                         let remove = remove_user(&*user, true, &sqlite_conn);
                         match remove.as_str() {
                             "removed" => {
-                                println!(">>> Usuario removido com sucesso\n\n> Pressione qualquer tecla para voltar ao menu");
+                                println!(">>> Username berhasil dihapus\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
-                            "error on remove user at db" => {
-                                println!("o usuario foi removido, mas ocorreu um erro ao tentar remover ele na db\n\n> Pressione qualquer tecla para voltar ao menu");
+                            "Kesalahan saat menghapus username" => {
+                                println!("pengguna telah dihapus, tetapi terjadi kesalahan\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
@@ -490,10 +490,10 @@ fn users_menu(sqlite_conn: &Connection) {
                     }
                     3 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: gerar teste");
+                        println!("--> fungsi yang dipilih: buat trial");
                         let mut minutes = String::new();
                         loop {
-                            println!("Digite o tempo de expiração em minutos: ");
+                            println!("Masukan waktu exp dalam menit: ");
                             if !minutes.is_empty() {
                                 minutes = String::new()
                             }
@@ -504,7 +504,7 @@ fn users_menu(sqlite_conn: &Connection) {
                                     break
                                 }
                                 Err(..) => {
-                                    println!("digite um numero valido");
+                                    println!("Masukan Nomor Yang Benar");
                                 }
                             }
                         }
@@ -513,7 +513,7 @@ fn users_menu(sqlite_conn: &Connection) {
                         match gen.as_str() {
                             "error on insert user in db" => {
                                 Command::new("clear").status().unwrap();
-                                println!("o teste foi criado, mas ocorreu um erro para salvar ele na db\n\n> Pressione qualquer tecla para voltar ao menu");
+                                println!("o teste foi criado, mas ocorreu um erro para salvar ele na db\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
@@ -522,11 +522,11 @@ fn users_menu(sqlite_conn: &Connection) {
                                     Command::new("clear").status().unwrap();
                                     let mut text = ">>> Teste gerado com sucesso".to_owned();
                                     let user = gen.split("user: ").collect::<Vec<&str>>()[1].split(" |").collect::<Vec<&str>>()[0];
-                                    text = text + "\n - Usuario: " + &*user;
-                                    text = text + "\n - Senha: " + &*user;
-                                    text = text + "\n - Expira em: " + &*minutes + " minutos";
-                                    text = text + "\n - Limite de conexões: 1";
-                                    text = text + "\n\n> Pressione qualquer tecla para voltar ao menu";
+                                    text = text + "\n - Userne: " + &*user;
+                                    text = text + "\n - Pass: " + &*user;
+                                    text = text + "\n - Exp: " + &*minutes + " minutos";
+                                    text = text + "\n - Limit: 1";
+                                    text = text + "\n\n> Tekan Sembarang Buat Kembali Ke Menu";
                                     println!("{}", text);
                                     let mut return_string = String::new();
                                     io::stdin().read_line(&mut return_string).expect("");
@@ -537,8 +537,8 @@ fn users_menu(sqlite_conn: &Connection) {
                     }
                     4 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: alterar limite");
-                        println!("Digite o usuario: ");
+                        println!("--> fungsi yang dipilih: ganti limit");
+                        println!("Masukan Username: ");
                         let mut user = String::new();
                         io::stdin().read_line(&mut user).unwrap();
                         user = user.trim().to_string();
@@ -553,7 +553,7 @@ fn users_menu(sqlite_conn: &Connection) {
 
                         let mut limit = String::new();
                         loop {
-                            println!("Digite o novo limit: ");
+                            println!("Masukan limit baru: ");
                             if !limit.is_empty() {
                                 limit = String::new()
                             }
@@ -564,7 +564,7 @@ fn users_menu(sqlite_conn: &Connection) {
                                     break
                                 }
                                 Err(..) => {
-                                    println!("digite um numero valido");
+                                    println!("Masukan Nomor Yang Benar");
                                 }
                             }
                         }
@@ -573,7 +573,7 @@ fn users_menu(sqlite_conn: &Connection) {
                         match change.as_str() {
                             "error on update user in db" => {
                                 Command::new("clear").status().unwrap();
-                                println!("ocorreu algum erro, tente novamente\n\n> Pressione qualquer tecla para voltar ao menu");
+                                println!("ocorreu algum erro, tente novamente\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
@@ -581,7 +581,7 @@ fn users_menu(sqlite_conn: &Connection) {
                             _ => {
                                 if change.contains("changed") {
                                     Command::new("clear").status().unwrap();
-                                    println!(">>> Limite alterado com sucesso\n\n> Pressione qualquer tecla para voltar ao menu");
+                                    println!(">>> Limite alterado com sucesso\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                     let mut return_string = String::new();
                                     io::stdin().read_line(&mut return_string).expect("");
                                 }
@@ -593,8 +593,8 @@ fn users_menu(sqlite_conn: &Connection) {
                     }
                     5 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: alterar validade");
-                        println!("Digite o usuario: ");
+                        println!("--> fungsi yang dipilih: ubah validitas");
+                        println!("Masukan Username: ");
                         let mut user = String::new();
                         io::stdin().read_line(&mut user).unwrap();
                         user = user.trim().to_string();
@@ -609,7 +609,7 @@ fn users_menu(sqlite_conn: &Connection) {
 
                         let mut days = String::new();
                         loop {
-                            println!("Digite a nova validade em dias: ");
+                            println!("Masukan validitas baru dalam hari: ");
                             if !days.is_empty() {
                                 days = String::new()
                             }
@@ -620,7 +620,7 @@ fn users_menu(sqlite_conn: &Connection) {
                                     break
                                 }
                                 Err(..) => {
-                                    println!("digite um numero valido");
+                                    println!("Masukan Nomor Yang Benar");
                                 }
                             }
                         }
@@ -629,7 +629,7 @@ fn users_menu(sqlite_conn: &Connection) {
                         match change.as_str() {
                             "error on update user in db" => {
                                 Command::new("clear").status().unwrap();
-                                println!("a validade foi alterada, mas ocorreu algum erro ao tentar atualizar ele na db\n\n> Pressione qualquer tecla para voltar ao menu");
+                                println!("a validade foi alterada, mas ocorreu algum erro ao tentar atualizar ele na db\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
@@ -637,7 +637,7 @@ fn users_menu(sqlite_conn: &Connection) {
                             _ => {
                                 if change.contains("changed") {
                                     Command::new("clear").status().unwrap();
-                                    println!(">>> Validade alterada com sucesso\n\n> Pressione qualquer tecla para voltar ao menu");
+                                    println!(">>> Validade alterada com sucesso\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                     let mut return_string = String::new();
                                     io::stdin().read_line(&mut return_string).expect("");
                                 }
@@ -646,8 +646,8 @@ fn users_menu(sqlite_conn: &Connection) {
                     }
                     6 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: alterar senha");
-                        println!("Digite o usuario: ");
+                        println!("--> fungsi yang dipilih: ganti password");
+                        println!("Masukan username: ");
                         let mut user = String::new();
                         io::stdin().read_line(&mut user).unwrap();
                         user = user.trim().to_string();
@@ -661,7 +661,7 @@ fn users_menu(sqlite_conn: &Connection) {
                         }
 
                         let mut pass = String::new();
-                        println!("Digite a nova senha: ");
+                        println!("Masukan pass baru: ");
                         io::stdin().read_line(&mut pass).unwrap();
                         pass = pass.trim().to_string();
 
@@ -670,7 +670,7 @@ fn users_menu(sqlite_conn: &Connection) {
                         match change.as_str() {
                             "error on update user in db" => {
                                 Command::new("clear").status().unwrap();
-                                println!("a senha foi alterada, mas ocorreu algum erro ao tentar atualizar ele na db\n\n> Pressione qualquer tecla para voltar ao menu");
+                                println!("a senha foi alterada, mas ocorreu algum erro ao tentar atualizar ele na db\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                 let mut return_string = String::new();
                                 io::stdin().read_line(&mut return_string).expect("");
                             }
@@ -678,7 +678,7 @@ fn users_menu(sqlite_conn: &Connection) {
                             _ => {
                                 if change.contains("changed") {
                                     Command::new("clear").status().unwrap();
-                                    println!(">>> Senha alterada com sucesso\n\n> Pressione qualquer tecla para voltar ao menu");
+                                    println!(">>> Senha alterada com sucesso\n\n> Tekan Sembarang Buat Kembali Ke Menu");
                                     let mut return_string = String::new();
                                     io::stdin().read_line(&mut return_string).expect("");
                                 }
@@ -687,24 +687,24 @@ fn users_menu(sqlite_conn: &Connection) {
                     }
                     7 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: relatorio de usuarios");
+                        println!("--> fungsi yang dipilih: Laporan pengguna");
                         let users = users_report_vec(&sqlite_conn);
                         for user in users {
-                            println!("Usuario: {} | Senha: {} | Limite: {} | Expira em: {}", user.user, user.pass, user.limit, DateTime::parse_from_str(&user.expiry, "%Y-%m-%d %H:%M:%S%.3f %z").unwrap().format("%Y-%m-%d"));
+                            println!("Username: {} | Pass: {} | Limit: {} | Exp: {}", user.user, user.pass, user.limit, DateTime::parse_from_str(&user.expiry, "%Y-%m-%d %H:%M:%S%.3f %z").unwrap().format("%Y-%m-%d"));
                         }
-                        println!("\n> Pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
                     }
                     8 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: relatorio de usuarios expirados");
+                        println!("--> fungsi yang dipilih: laporan pengguna yang exp");
                         let expired = expired_report_vec(&sqlite_conn);
                         for user in expired {
-                            println!("Usuario: {} | Senha: {} | Limite: {} | Expira em: {}", user.user, user.pass, user.limit, DateTime::parse_from_str(&user.expiry, "%Y-%m-%d %H:%M:%S%.3f %z").unwrap().format("%Y-%m-%d"));
+                            println!("Username: {} | Pass: {} | Limit: {} | Exp: {}", user.user, user.pass, user.limit, DateTime::parse_from_str(&user.expiry, "%Y-%m-%d %H:%M:%S%.3f %z").unwrap().format("%Y-%m-%d"));
                         }
-                        println!("\n> Pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                     }
@@ -716,9 +716,9 @@ fn users_menu(sqlite_conn: &Connection) {
 
                         loop {
                             Command::new("clear").status().unwrap();
-                            println!("Monitorando usuários conectados via SSH");
+                            println!("Memantau pengguna yang login melalui SSH");
                             println!("------------------------------------------");
-                            println!("Usuário           | Conexões/Limite");
+                            println!("Username           | Connect/Limit");
                             println!("--------------------------");
 
                             let users = online_report(&sqlite_conn);
@@ -730,8 +730,8 @@ fn users_menu(sqlite_conn: &Connection) {
                             if total_connections != 0 {
                                 println!("--------------------------");
                             }
-                            println!("Total de conexões: {}", total_connections);
-                            println!("\n> Pressione qualquer tecla para voltar ao menu");
+                            println!("Jumlah koneksi: {}", total_connections);
+                            println!("\n> Tekan Sembarang Buat Kembali Ke Menu");
 
                             if handle.is_finished() {
                                 break;
@@ -741,17 +741,17 @@ fn users_menu(sqlite_conn: &Connection) {
                     }
                     10 => {
                         Command::new("clear").status().unwrap();
-                        println!("--> função selecionada: remover usuarios expirados");
+                        println!("--> funhsi yang dipilih: menghapus user exp");
                         let expired = expired_report_vec(&sqlite_conn);
                         if expired.len() > 0 {
                             for user in expired {
                                 remove_user(user.user.as_str(), true, &sqlite_conn);
-                                println!("usuario: {} removido", user.user);
+                                println!("username: {} hapus", user.user);
                             }
                         } else {
-                            println!("nenhum usuario expirado encontrado")
+                            println!("tidak ditemukan pengguna exp")
                         }
-                        println!("\n> Pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
@@ -761,7 +761,7 @@ fn users_menu(sqlite_conn: &Connection) {
             }
             Err(err) => {
                 println!("{}", err);
-                println!("Selecione uma opção valida")
+                println!("Pilih Salah Satu Opsi valida")
             }
         }
     }
@@ -772,17 +772,17 @@ fn connection_menu(sqlite_conn: &Connection) {
         Command::new("clear").status().unwrap();
         
         println!("------------------------------------------------");
-        println!("|              {}              |", text_to_bold("Gerenciar Conexões"));
+        println!("|              {}              |", text_to_bold("Kelola Koneksi"));
         println!("------------------------------------------------");
-        println!("| 1 - {:<40} |", "Portas Ativas");
+        println!("| 1 - {:<40} |", "Port Aktif");
         println!("| 2 - {:<40} |", "RustyProxy (ws/wss/socks)");
-        println!("| 3 - {:<40} |", "RustyProxySSL (direct/ws/wss)");
+        println!("| 3 - {:<40} |", "Stunnel");
         println!("| 4 - {:<40} |", "Badvpn");
         println!("| 5 - {:<40} |", "OpenVpn");
-        println!("| 0 - {:<40} |", "Voltar ao menu");
+        println!("| 0 - {:<40} |", "Kembali ke menu");
         println!("------------------------------------------------");
         let mut option = String::new();
-        println!("\n --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
 
         match option.trim().parse() {
@@ -795,7 +795,7 @@ fn connection_menu(sqlite_conn: &Connection) {
                         proxy_menu(&sqlite_conn)
                     }
                     3 => {
-                        sslproxy_menu(&sqlite_conn)
+                        stunnel_menu(&sqlite_conn)
                     }
                     4 => {
                         badvpn_menu(&sqlite_conn)
@@ -808,7 +808,7 @@ fn connection_menu(sqlite_conn: &Connection) {
                     }
                     _ => {
                         Command::new("clear").status().unwrap();
-                        println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                     }
@@ -816,7 +816,7 @@ fn connection_menu(sqlite_conn: &Connection) {
             }
             Err(_) => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
@@ -831,21 +831,19 @@ fn utils_menu(sqlite_conn: &Connection) {
         Command::new("clear").status().unwrap();
         
         println!("------------------------------------------------");
-        println!("|                  {}                 |", text_to_bold("Ferramentas"));
+        println!("|                  {}                 |", text_to_bold("Peralatan"));
         println!("------------------------------------------------");
         println!("| {:<45}|", "1 - Checkuser Multi-Apps");
-        println!("| {:<45}|", "2 - Teste de Velocidade");
-        println!("| {:<45}|", "3 - Monitorar recursos");
-        println!("| {:<45}|", "4 - Gerenciar Journald");
-        println!("| {:<45}|", "5 - Criar backup");
-        println!("| {:<45}|", "6 - Restaurar backup");
-        println!("| {:<45}|", "7 - Alterar senha root");
-        println!("| {:<45}|", "8 - Reiniciar Servidor");
-        println!("| {:<45}|", "0 - Voltar ao menu");
+        println!("| {:<45}|", "2 - Test kecepatan");
+        println!("| {:<45}|", "3 - Monitor Cpu");
+        println!("| {:<45}|", "4 - Kelola Jurnal");
+        println!("| {:<45}|", "5 - Buat backup");
+        println!("| {:<45}|", "6 - Pulihkan backup");
+        println!("| {:<45}|", "0 - Kembali ke menu");
         println!("------------------------------------------------");
         println!();
         let mut option = String::new();
-        println!(" --> Selecione uma opção:");
+        println!(" --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
         match option.trim().parse() {
             Ok(op) => {
@@ -855,7 +853,7 @@ fn utils_menu(sqlite_conn: &Connection) {
                     }
                     2 => {
                         Command::new("clear").status().unwrap();
-                        println!("teste em execução, essa ação pode demorar...");
+                        println!("test berjalan, tindakan ini memerlukan waktu cukup lama...");
                         let speedtest = speedtest_data();
                         let download_bits = speedtest.download.bytes as f64 * 8.0;
                         let upload_bits = speedtest.upload.bytes as f64 * 8.0;
@@ -872,23 +870,24 @@ fn utils_menu(sqlite_conn: &Connection) {
                         Command::new("clear").status().unwrap();
 
                         println!("------------------------------------------------");
-                        println!("|              {}             |", text_to_bold("Teste de Velocidade"));
+                        println!("|              {}             |", text_to_bold("Test kecepatan"));
                         println!("------------------------------------------------");
-                        println!("| Rede: {:<38} |", speedtest.interface.name);
+                        println!("| Jaringan: {:<38} |", speedtest.interface.name);
                         println!("| Ip: {:<40} |", speedtest.interface.internal_ip);
+                        println!("| Download: {:<34} |", format!("{:.2}mbps", download_mbps));
                         println!("| Download: {:<34} |", format!("{:.2}mbps", download_mbps));
                         println!("| Upload:   {:<34} |", format!("{:.2}mbps", upload_mbps));
                         println!("| Ping:     {:<32}   |", format!("{:.2}ms", speedtest.ping.latency));
                         println!("------------------------------------------------");
 
-                        println!("\n> pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                     }
                     3 => {
                         Command::new("clear").status().unwrap();
-                        println!("{}", text_to_bold("> aviso: para sair do monitor, pressione F10"));
-                        println!("> pressione qualquer tecla para continuar");
+                        println!("{}", text_to_bold("> peringatan: untuk keluar dari monitor, tekan F10"));
+                        println!("> tekan sembarang tombol untuk melanjutkan");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                         Command::new("htop").status().unwrap();
@@ -898,57 +897,36 @@ fn utils_menu(sqlite_conn: &Connection) {
                     }
                     5 => {
                         Command::new("clear").status().unwrap();
-                        println!("{}", text_to_bold("gerando backup..."));
+                        println!("{}", text_to_bold("membuat backup..."));
                         let make = make_backup(&sqlite_conn);
                         if make == "backup done in /root/backup.json" {
-                            println!("backup criado com sucesso, salvo em: /root/backup.json")
+                            println!("backup berhasil dibuat, disimpan di: /root/backup.json")
                         }
-                        println!("> pressione qualquer tecla para voltar ao menu");
+                        println!("> Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                     }
                     6 => {
                         Command::new("clear").status().unwrap();
-                        println!("Digite o caminho do arquivo:");
+                        println!("Masukan Jalur file:");
                         let mut backup_path = String::new();
                         io::stdin().read_line(&mut backup_path).expect("");
                         backup_path = backup_path.trim().to_string();
 
                         if Path::new(&backup_path).exists() {
-                            println!("arquivo encontrado, restaurando backup...\n");
+                            println!("file ditemukan, memulihkan backup...\n");
                             let restore = restore_backup(&sqlite_conn, backup_path.to_string());
-                            if restore == "backup restored" {
-                                println!("\nbackup restaurado com sucesso");
+                            if restore == "backup dipulihkan" {
+                                println!("\nbackup berhasil dipulihkan");
                             }
                         } else {
-                            println!("\no arquivo não foi encontrado no caminho digitado");
+                            println!("\tidak ada file yang ditemukan pada jalur yang dimasukan");
                         }
-                        println!("> pressione qualquer tecla para voltar ao menu");
+                        println!("> Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
                     }
-                    7 => {
-                        Command::new("clear").status().unwrap();
-                        loop {
-                            println!("Digite a nova senha root:");
-                            let mut new_pass = String::new();
-                            io::stdin().read_line(&mut new_pass).expect("");
-                            new_pass = new_pass.trim().to_string();
-                            if new_pass.len() >= 4 {
-                                run_command_and_get_output(format!("(echo {}; echo {}) | passwd root", new_pass, new_pass).as_str());
-                                println!("senha alterada");
-                                break;
-                            }
-                        }
-                        println!("> pressione qualquer tecla para voltar ao menu");
-                        let mut return_string = String::new();
-                        io::stdin().read_line(&mut return_string).expect("");
-                    }
-                    8 => {
-                        Command::new("reboot").status().unwrap();
-                    }
-
                     0 => {
                         break
                     }
@@ -959,7 +937,7 @@ fn utils_menu(sqlite_conn: &Connection) {
             }
             _ => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Opsi tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
@@ -976,20 +954,20 @@ fn proxy_menu(sqlite_conn: &Connection) {
         let conn = get_connections(&sqlite_conn).unwrap();
         let proxy_ports = conn.proxy.ports.unwrap_or_default();
         if proxy_ports.is_empty() {
-            println!("| Portas(s): {:<34}|", "nenhuma");
+            println!("| Port(s): {:<34}|", "tidak ada");
         } else {
             let active_ports = proxy_ports.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(" ");
-            println!("| Portas(s): {:<34}|", active_ports);
+            println!("| Port(s): {:<34}|", active_ports);
         }
 
         println!("------------------------------------------------");
-        println!("| {:<45}|", "1 - Abrir Porta");
-        println!("| {:<45}|", "2 - Fechar Porta");
-        println!("| {:<45}|", "0 - Voltar ao menu");
+        println!("| {:<45}|", "1 - Port terbuka");
+        println!("| {:<45}|", "2 - Tutup Port");
+        println!("| {:<45}|", "0 - Kembali ke menu");
         println!("------------------------------------------------");
         println!();
         let mut option = String::new();
-        println!(" --> Selecione uma opção:");
+        println!(" --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
         match option.trim().parse() {
             Ok(op) => {
@@ -997,7 +975,7 @@ fn proxy_menu(sqlite_conn: &Connection) {
                     1 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1006,32 +984,32 @@ fn proxy_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if !is_port_avaliable(port).unwrap() {
-                                        println!("essa porta já está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
                         }
-                        println!("Digite o status de conexão (não digite nada para o padrão): ");
+                        println!("Masukkan status koneksi (jangan masukkan apa pun sebagai default): ");
                         let mut status = String::new();
                         io::stdin().read_line(&mut status).unwrap();
                         status = status.trim().to_string();
 
                         enable_proxy_port(port, status);
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta ativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Port berhasil diaktifkan, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                     }
                     2 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan Port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1040,13 +1018,13 @@ fn proxy_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if is_port_avaliable(port).unwrap() {
-                                        println!("essa porta não está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
@@ -1054,7 +1032,7 @@ fn proxy_menu(sqlite_conn: &Connection) {
 
                         disable_proxy_port(port);
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta desativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Port berhasil dinonaktifkan, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
@@ -1069,38 +1047,36 @@ fn proxy_menu(sqlite_conn: &Connection) {
             }
             _ => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
         }
     }
 }
-
-fn sslproxy_menu(sqlite_conn: &Connection) {
+fn stunnel_menu(sqlite_conn: &Connection) {
     loop {
         Command::new("clear").status().unwrap();
-
+        
         println!("------------------------------------------------");
-        println!("|                  {}              |", text_to_bold("RUSTY PROXY SSL"));
+        println!("|                    {}                   |", text_to_bold("STUNNEL"));
         println!("------------------------------------------------");
         let conn = get_connections(&sqlite_conn).unwrap();
-        let sslproxy_ports = conn.sslproxy.ports.unwrap_or_default();
-        if sslproxy_ports.is_empty() {
-            println!("| Portas(s): {:<34}|", "nenhuma");
+        let stunnel_ports = conn.stunnel.ports.unwrap_or_default();
+        if stunnel_ports.is_empty() {
+            println!("| Port(s): {:<34}|", "tidak ada");
         } else {
-            let active_ports = sslproxy_ports.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(" ");
+            let active_ports = stunnel_ports.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(" ");
             println!("| Portas(s): {:<34}|", active_ports);
         }
 
+        println!("| 1 - {:<40} |", "Port Terbuka");
+        println!("| 2 - {:<40} |", "Port Terbuka Ipv6 (pengguna mahir)");
+        println!("| 3 - {:<40} |", "Tutup Port");
+        println!("| 0 - {:<40} |", "Kembali ke menu");
         println!("------------------------------------------------");
-        println!("| {:<45}|", "1 - Abrir Porta");
-        println!("| {:<45}|", "2 - Fechar Porta");
-        println!("| {:<45}|", "0 - Voltar ao menu");
-        println!("------------------------------------------------");
-        println!();
         let mut option = String::new();
-        println!(" --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
         match option.trim().parse() {
             Ok(op) => {
@@ -1108,7 +1084,7 @@ fn sslproxy_menu(sqlite_conn: &Connection) {
                     1 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan Port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1117,27 +1093,58 @@ fn sslproxy_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if !is_port_avaliable(port).unwrap() {
-                                        println!("essa porta já está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukkan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
                         }
-                        enable_sslproxy_port(port);
+                        enable_stunnel_port(port, false);
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta ativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Porta ativada com sucesso, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                     }
                     2 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan Port: ");
+                            if !port.is_empty() {
+                                port = String::new();
+                            };
+                            io::stdin().read_line(&mut port).unwrap();
+                            port = port.trim().to_string();
+                            match port.parse::<usize>() {
+                                Ok(port) => {
+                                    if !is_port_avaliable(port).unwrap() {
+                                        println!("port ini sudah digunakan, masukkan port lain:")
+                                    } else {
+                                        break
+                                    }
+                                }
+                                Err(..) => {
+                                    println!("masukan port yang benar");
+                                }
+                            }
+
+                        }
+                        enable_stunnel_port(port, true);
+                        Command::new("clear").status().unwrap();
+                        println!("\n> Porta ativada com sucesso, Tekan Sembarang Buat Kembali Ke Menu");
+                        let mut return_string = String::new();
+                        io::stdin().read_line(&mut return_string).expect("");
+                    }
+
+
+                    3 => {
+                        let mut port = String::new();
+                        loop {
+                            println!("Masukan Port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1146,21 +1153,21 @@ fn sslproxy_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if is_port_avaliable(port).unwrap() {
-                                        println!("essa porta não está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
                         }
 
-                        disable_sslproxy_port(port);
+                        disable_stunnel_port(port);
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta desativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Port berhasil dinonaktifkan, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
@@ -1175,7 +1182,7 @@ fn sslproxy_menu(sqlite_conn: &Connection) {
             }
             _ => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
@@ -1192,18 +1199,18 @@ fn badvpn_menu(sqlite_conn: &Connection) {
         let conn = get_connections(&sqlite_conn).unwrap();
         let badvpn_ports = conn.badvpn.ports.unwrap_or_default();
         if badvpn_ports.is_empty() {
-            println!("| Portas(s): {:<34}|", "nenhuma");
+            println!("| Portas(s): {:<34}|", "tidak ada");
         } else {
             let active_ports = badvpn_ports.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(" ");
             println!("| Portas(s): {:<34}|", active_ports);
         }
 
-        println!("| 1 - {:<40} |", "Abrir Porta");
-        println!("| 2 - {:<40} |", "Fechar Porta");
-        println!("| 0 - {:<40} |", "Voltar ao menu");
+        println!("| 1 - {:<40} |", "Port Terbuka");
+        println!("| 2 - {:<40} |", "Tutup Port");
+        println!("| 0 - {:<40} |", "Kembali ke menu");
         println!("------------------------------------------------");
         let mut option = String::new();
-        println!("\n --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
         match option.trim().parse() {
             Ok(op) => {
@@ -1211,7 +1218,7 @@ fn badvpn_menu(sqlite_conn: &Connection) {
                     1 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan Port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1220,13 +1227,13 @@ fn badvpn_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if !is_port_avaliable(port).unwrap() {
-                                        println!("essa porta já está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukkan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
@@ -1235,7 +1242,7 @@ fn badvpn_menu(sqlite_conn: &Connection) {
                         enable_badvpn_port(port);
 
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta ativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Porta ativada com sucesso, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
@@ -1243,7 +1250,7 @@ fn badvpn_menu(sqlite_conn: &Connection) {
                     2 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan Port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1252,13 +1259,13 @@ fn badvpn_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if is_port_avaliable(port).unwrap() {
-                                        println!("essa porta não está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
@@ -1267,7 +1274,7 @@ fn badvpn_menu(sqlite_conn: &Connection) {
                         disable_badvpn_port(port);
 
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta desativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Port berhasil dinonaktifkan, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
@@ -1282,7 +1289,7 @@ fn badvpn_menu(sqlite_conn: &Connection) {
             }
             _ => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
@@ -1299,17 +1306,17 @@ fn checkuser_menu(sqlite_conn: &Connection) {
         let conn = get_connections(&sqlite_conn).unwrap();
         let checkuser_ports = conn.checkuser.ports.unwrap_or_default();
         if checkuser_ports.is_empty() {
-            println!("| Portas(s): {:<34}|", "nenhuma");
+            println!("| Port(s): {:<34}|", "tidak ada");
         } else {
             let active_ports = checkuser_ports.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(" ");
             println!("| Portas(s): {:<34}|", active_ports);
         }
-        println!("| 1 - {:<40} |", "Abrir Porta");
-        println!("| 2 - {:<40} |", "Fechar Porta");
-        println!("| 0 - {:<40} |", "Voltar ao menu");
+        println!("| 1 - {:<40} |", "Port Terbuka");
+        println!("| 2 - {:<40} |", "Tutup Port");
+        println!("| 0 - {:<40} |", "Kembali ke menu");
         println!("------------------------------------------------");
         let mut option = String::new();
-        println!("\n --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
         match option.trim().parse() {
             Ok(op) => {
@@ -1317,7 +1324,7 @@ fn checkuser_menu(sqlite_conn: &Connection) {
                     1 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan Port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1326,13 +1333,13 @@ fn checkuser_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if !is_port_avaliable(port).unwrap() {
-                                        println!("essa porta já está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukkan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
@@ -1341,7 +1348,7 @@ fn checkuser_menu(sqlite_conn: &Connection) {
                         enable_checkuser_port(port);
 
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta ativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Porta ativada com sucesso, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
@@ -1349,7 +1356,7 @@ fn checkuser_menu(sqlite_conn: &Connection) {
                     2 => {
                         let mut port = String::new();
                         loop {
-                            println!("Digite a porta: ");
+                            println!("Masukan Port: ");
                             if !port.is_empty() {
                                 port = String::new();
                             };
@@ -1358,13 +1365,13 @@ fn checkuser_menu(sqlite_conn: &Connection) {
                             match port.parse::<usize>() {
                                 Ok(port) => {
                                     if is_port_avaliable(port).unwrap() {
-                                        println!("essa porta não está em uso, digite outra:")
+                                        println!("port ini sudah digunakan, masukan port lain:")
                                     } else {
                                         break
                                     }
                                 }
                                 Err(..) => {
-                                    println!("digite uma porta valida");
+                                    println!("masukan port yang benar");
                                 }
                             }
 
@@ -1373,7 +1380,7 @@ fn checkuser_menu(sqlite_conn: &Connection) {
                         disable_checkuser_port(port);
 
                         Command::new("clear").status().unwrap();
-                        println!("\n> Porta desativada com sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Port berhasil dinonaktifkan, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
 
@@ -1388,7 +1395,7 @@ fn checkuser_menu(sqlite_conn: &Connection) {
             }
             _ => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
@@ -1406,16 +1413,16 @@ fn openvpn_menu(sqlite_conn: &Connection) {
         let conn = get_connections(&sqlite_conn).unwrap();
         let openvpn_port = conn.openvpn.port.unwrap_or_default();
         if openvpn_port.is_empty() {
-            println!("| Porta: {:<38}|", "nenhuma");
-            println!("| 1 - {:<40} |", "Ativar OpenVPN");
+            println!("| Port: {:<38}|", "tidak ada");
+            println!("| 1 - {:<40} |", "Mengaktifkan OpenVPN");
         } else {
             println!("| Porta: {:<38}|", openvpn_port);
-            println!("| 1 - {:<40} |", "Desativar OpenVPN");
+            println!("| 1 - {:<40} |", "Menonaktifkan OpenVPN");
         }
-        println!("| 0 - {:<40} |", "Voltar ao menu");
+        println!("| 0 - {:<40} |", "Kembali ke menu");
         println!("------------------------------------------------");
         let mut option = String::new();
-        println!("\n --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
         match option.trim().parse() {
             Ok(op) => {
@@ -1424,7 +1431,7 @@ fn openvpn_menu(sqlite_conn: &Connection) {
                         if openvpn_port.is_empty() {
                             let mut port = String::new();
                             loop {
-                                println!("Digite a porta: ");
+                                println!("Masukan Port: ");
                                 if !port.is_empty() {
                                     port = String::new();
                                 };
@@ -1433,13 +1440,13 @@ fn openvpn_menu(sqlite_conn: &Connection) {
                                 match port.parse::<usize>() {
                                     Ok(port) => {
                                         if !is_port_avaliable(port).unwrap() {
-                                            println!("essa porta já está em uso, digite outra:")
+                                            println!("port ini sudah digunakan, masukkan port lain:")
                                         } else {
                                             break
                                         }
                                     }
                                     Err(..) => {
-                                        println!("digite uma porta valida");
+                                        println!("masukan port yang benar");
                                     }
                                 }
 
@@ -1463,14 +1470,14 @@ fn openvpn_menu(sqlite_conn: &Connection) {
 
                             Command::new("clear").status().unwrap();
                             println!("\n> OpenVPN ativado com sucesso");
-                            println!("\n> Certificado salvo em: /root/client.ovpn, pressione qualquer tecla para voltar ao menu");
+                            println!("\n> Certificado salvo em: /root/client.ovpn, Tekan Sembarang Buat Kembali Ke Menu");
                             let mut return_string = String::new();
                             io::stdin().read_line(&mut return_string).expect("");
 
                         } else {
                             disable_openvpn();
                             Command::new("clear").status().unwrap();
-                            println!("\n> OpenVPN desativado com sucesso, pressione qualquer tecla para voltar ao menu");
+                            println!("\n> OpenVPN desativado com sucesso, Tekan Sembarang Buat Kembali Ke Menu");
                             let mut return_string = String::new();
                             io::stdin().read_line(&mut return_string).expect("");
                         }
@@ -1486,7 +1493,7 @@ fn openvpn_menu(sqlite_conn: &Connection) {
             }
             _ => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
@@ -1505,16 +1512,16 @@ fn journald_menu() {
         if status {
             println!("| Status: {:<37}|", "ativado");
             println!("------------------------------------------------");
-            println!("| 1 - {:<40} |", "Desativar");
+            println!("| 1 - {:<40} |", "Menonaktifkan");
         } else {
             println!("| Status: {:<37}|", "desativado");
             println!("------------------------------------------------");
-            println!("| 1 - {:<40} |", "Ativar");
+            println!("| 1 - {:<40} |", "Mengaktifkan");
         }
-        println!("| 0 - {:<40} |", "Voltar ao menu");
+        println!("| 0 - {:<40} |", "Kembali ke menu");
         println!("------------------------------------------------");
         let mut option = String::new();
-        println!("\n --> Selecione uma opção:");
+        println!("\n --> Pilih Salah Satu Opsi:");
         io::stdin().read_line(&mut option).unwrap();
         match option.trim().parse() {
             Ok(op) => {
@@ -1526,7 +1533,7 @@ fn journald_menu() {
                             enable_journald()
                         }
                         Command::new("clear").status().unwrap();
-                        println!("\n> Sucesso, pressione qualquer tecla para voltar ao menu");
+                        println!("\n> Berhasil, Tekan Sembarang Buat Kembali Ke Menu");
                         let mut return_string = String::new();
                         io::stdin().read_line(&mut return_string).expect("");
                     }
@@ -1540,7 +1547,7 @@ fn journald_menu() {
             }
             _ => {
                 Command::new("clear").status().unwrap();
-                println!("\n> Opção invalida, pressione qualquer tecla para voltar ao menu");
+                println!("\n> Pilihan tidak valid, Tekan Sembarang Buat Kembali Ke Menu");
                 let mut return_string = String::new();
                 io::stdin().read_line(&mut return_string).expect("");
             }
@@ -1551,7 +1558,7 @@ fn services_menu() {
     Command::new("clear").status().unwrap();
 
     println!("------------------------------------------------");
-    println!("|                 {}                |", text_to_bold("Portas Ativas"));
+    println!("|                 {}                |", text_to_bold("Port Aktif"));
     println!("------------------------------------------------");
     let services = get_services();
     for service in services {
@@ -1559,7 +1566,7 @@ fn services_menu() {
     }
     println!("------------------------------------------------");
     println!();
-    println!("> Pressione qualquer tecla para voltar ao menu");
+    println!("> Tekan Sembarang Buat Kembali Ke Menu");
     let mut return_string = String::new();
     io::stdin().read_line(&mut return_string).expect("");
-}
+                            }
